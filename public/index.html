@@ -8,10 +8,8 @@
     <!-- update the version number as needed -->
     <script defer src="/__/firebase/5.5.4/firebase-app.js"></script>
     <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/5.5.4/firebase-auth.js"></script>
-    <script defer src="/__/firebase/5.5.4/firebase-database.js"></script>
-    <script defer src="/__/firebase/5.5.4/firebase-messaging.js"></script>
-    <script defer src="/__/firebase/5.5.4/firebase-storage.js"></script>
+    <script defer src="/__/firebase/5.5.4/firebase-functions.js"></script>
+
     <!-- initialize the SDK after all desired features are loaded -->
     <script defer src="/__/firebase/init.js"></script>
 
@@ -47,33 +45,40 @@
         // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
         //
         // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        // Initialize Firebase
+
+        var config = {
+          apiKey: "AIzaSyCveG2UE_aIwPhZBCO8w5IEANyHBmEVFqE",
+          authDomain: "vocablearner-e0c8d.firebaseapp.com",
+          databaseURL: "https://vocablearner-e0c8d.firebaseio.com",
+          projectId: "vocablearner-e0c8d",
+          storageBucket: "vocablearner-e0c8d.appspot.com",
+          messagingSenderId: "198221316643"
+        };
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config);
+        }
+        var functions = firebase.functions();
 
         try {
-          let app = firebase.app();
-          let features = ['auth', 'database', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
-          getRandomWord();
+          //  https://firebase.google.com/docs/functions/callable
+          var getLeastViewedWord = functions.httpsCallable('getLeastViewedWord');
+          getLeastViewedWord().then(function(result) {
+            console.info( result );
+            var word = result.data;          
+            console.info( word );
+            displayWord(word);
+          });
         } catch (e) {
           console.error(e);
         }
       });
-      function getRandomWord(){
-        httpGetAsync('https://us-central1-vocablearner-e0c8d.cloudfunctions.net/getRandomWord',displayWord);
-      }
+
       function displayWord(word){
-        const w = JSON.parse(word);
         document.getElementById('word').innerHTML = w.word;
         document.getElementById('definition').innerHTML = w.definition;
       }
-      function httpGetAsync(theUrl, callback){
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() { 
-          if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-            callback(xmlHttp.responseText);
-          }
-        }
-        xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-        xmlHttp.send(null);
-      }
-    </script>
+
+</script>
   </body>
 </html>
